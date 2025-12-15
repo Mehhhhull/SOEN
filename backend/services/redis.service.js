@@ -7,3 +7,9 @@ const redisClient=new Redis({
   port:process.env.REDIS_PORT,
   password:process.env.REDIS_PASSWORD,
 })
+
+redisClient.on('connect',()=>{
+  console.log("Redis Connected")
+})
+
+export default redisClient;
