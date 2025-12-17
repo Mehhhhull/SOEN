@@ -10,7 +10,7 @@ const Register = () => {
  function handleSubmit(e){
   e.preventDefault()
 
-  axios.post('/register',{
+  axios.post('/users/register',{
       email,
       password
     }).then((res)=>{
