@@ -1,26 +1,26 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import axios from '../config/axios'
 
 const Register = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setError('')
-    if (!email || !password) {
-      setError('Please enter both email and password.')
-      return
-    }
+ function handleSubmit(e){
+  e.preventDefault()
 
-    // TODO: replace with real auth call
-    // Simulate success and navigate to home/dashboard
-    console.log('Register attempt', { email, password })
-    navigate('/')
-  }
+  axios.post('/register',{
+      email,
+      password
+    }).then((res)=>{
+      console.log(res.data)
+      navigate('/')
+    }).catch((err)=>{
+      console.log(err.response.data)
+    })
+ }
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-100">
