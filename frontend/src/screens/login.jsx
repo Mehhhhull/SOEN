@@ -6,24 +6,27 @@ const Login = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
+
 
 
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    axios.post('/users/login',{
+    axios.post('/users/login', {
       email,
       password
-    }).then((res)=>{
+    }).then((res) => {
       console.log(res.data)
       navigate('/')
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err.response.data)
     })
-    }
+  }
 
-    
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-gray-800/60 backdrop-blur rounded-xl shadow-lg ring-1 ring-white/5">
