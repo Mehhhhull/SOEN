@@ -1,37 +1,27 @@
-import React, { useState,useContext } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from '../config/axios'
-import { UserContext } from '../context/user.context'
+import { useUser } from '../context/user.context'
 
 const Login = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
-
-const { setUser } = useContext(UserContext)
+  const { login, loading, error: contextError } = useUser()
 
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
 
-
-
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError(null)
 
-    axios.post('/users/login', {
-      email,
-      password
-    }).then((res) => {
-      console.log(res.data)
-    
-      localStorage.setItem('token', res.data.token)
-      setUser(res.data.user)
-
+    try {
+      await login({ email, password })
       navigate('/')
-    }).catch((err) => {
-      console.log(err.response.data)
-    })
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Login failed')
+    }
   }
 
 
@@ -44,8 +34,10 @@ const { setUser } = useContext(UserContext)
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {error && (
-            <div className="text-sm text-red-400 bg-red-900/30 p-2 rounded">{error}</div>
+          {(error || contextError) && (
+            <div className="text-sm text-red-400 bg-red-900/30 p-2 rounded">
+              {error || contextError?.message || 'An error occurred'}
+            </div>
           )}
 
           <div>
@@ -94,9 +86,10 @@ const { setUser } = useContext(UserContext)
 
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            disabled={loading}
+            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:cursor-not-allowed text-white rounded-md font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            Sign in
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 

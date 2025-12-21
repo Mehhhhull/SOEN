@@ -1,31 +1,26 @@
-import React, { useState,useContext } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { UserContext } from '../context/user.context'
+import { useUser } from '../context/user.context'
 import axios from '../config/axios'
 
 const Register = () => {
   const navigate = useNavigate()
-  const { setUser } = useContext(UserContext)
+  const { register, loading, error: contextError } = useUser()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
 
-
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
+    setError(null)
 
-    axios.post('/users/register', {
-      email,
-      password
-    }).then((res) => {
-      console.log(res.data)
-      localStorage.setItem('token', res.data.token)
-      setUser(res.data.user)
+    try {
+      await register({ email, password })
       navigate('/')
-    }).catch((err) => {
-      console.log(err.response.data)
-    })
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Registration failed')
+    }
   }
 
 
@@ -33,13 +28,15 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-gray-800/60 backdrop-blur rounded-xl shadow-lg ring-1 ring-white/5">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold">Welcome back</h1>
-          <p className="text-sm text-gray-300 mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-semibold">Create Account</h1>
+          <p className="text-sm text-gray-300 mt-1">Sign up for a new account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {error && (
-            <div className="text-sm text-red-400 bg-red-900/30 p-2 rounded">{error}</div>
+          {(error || contextError) && (
+            <div className="text-sm text-red-400 bg-red-900/30 p-2 rounded">
+              {error || contextError?.message || 'An error occurred'}
+            </div>
           )}
 
           <div>
@@ -88,9 +85,10 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            disabled={loading}
+            className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:cursor-not-allowed text-white rounded-md font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            Sign in
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
